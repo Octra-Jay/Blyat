@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🔥 Deine Analyse: Code eingeben</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e0e0e0;
+            padding: 15px;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .code-container {
+            max-width: 400px;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            animation: fadeIn 1s ease-out;
+            position: relative;
+            z-index: 1;
+            margin: 20px auto;
+        }
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: none;
+            position: relative;
+            z-index: 1;
+            transform: perspective(1000px);
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px) rotateX(10deg);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0) rotateX(0);
+        }
+        h1 {
+            color: #0284c7;
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 0 0 15px rgba(2, 132, 199, 0.7);
+            margin-bottom: 15px;
+        }
+        h2 {
+            color: #f1fa8c;
+            font-size: 1.6em;
+            margin-top: 20px;
+        }
+        h3 {
+            color: #ff79c6;
+            font-size: 1.3em;
+        }
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            margin: 20px 0;
+            transform: perspective(1000px);
+        }
+        table {
+            width: 100%;
+            max-width: 100%;
+            border-collapse: collapse;
+            background: #334155;
+            border-radius: 12px;
+            overflow: hidden;
+            animation: fadeIn 1.5s ease-out;
+            table-layout: auto;
+            transition: transform 0.3s ease;
+        }
+        table:hover {
+            transform: perspective(1000px) rotateX(2deg);
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #475569;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+        th {
+            background: #4b5e7a;
+            color: #f8f8f2;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        td {
+            color: #e0e0e0;
+            max-width: 250px;
+        }
+        tr {
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+        tr:hover {
+            transform: scale(1.02);
+            background: #475569;
+        }
+        .alert {
+            background: #ef4444;
+            color: #f8f8f2;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.5);
+            animation: pulse 2s infinite;
+        }
+        .overlay-alert {
+            position: relative;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .overlay-alert .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ef4444;
+            color: #f8f8f2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 5px;
+            transition: opacity 0.3s ease;
+        }
+        .overlay-alert.revealed .overlay {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .tip {
+            background: #22c55e;
+            color: #1e293b;
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5);
+            animation: slideIn 1s ease-out;
+        }
+        .chart-container {
+            max-width: 100%;
+            margin: 20px 0;
+            padding: 10px;
+            background: #334155;
+            border-radius: 12px;
+            animation: fadeIn 2s ease-out;
+            transform: perspective(1000px);
+            transition: transform 0.3s ease;
+        }
+        .chart-container:hover {
+            transform: perspective(1000px) rotateX(2deg);
+        }
+        canvas {
+            max-width: 100%;
+        }
+        ul, ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        a {
+            color: #00b7eb;
+            text-decoration: none;
+            transition: color 0.3s ease, transform 0.3s ease;
+        }
+        a:hover {
+            color: #f1fa8c;
+            transform: scale(1.1);
+        }
+        .contact-box {
+            background: #475569;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        .contact-btn {
+            display: inline-block;
+            background: #ff79c6;
+            color: #1e293b;
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            margin: 5px;
+            animation: blink 3s infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+        .contact-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 121, 198, 0.5);
+        }
+        .final-note {
+            text-align: center;
+            font-size: 1.2em;
+            color: #f1fa8c;
+            margin-top: 20px;
+            text-shadow: 0 0 10px rgba(241, 250, 140, 0.5);
+        }
+        .code-input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #00b7eb;
+            border-radius: 10px;
+            background: #1e293b;
+            color: #e0e0e0;
+            font-size: 1em;
+            box-shadow: 0 0 10px rgba(0, 183, 235, 0.3);
+            outline: none;
+        }
+        .code-input:focus {
+            border-color: #f1fa8c;
+            box-shadow: 0 0 15px rgba(241, 250, 140, 0.5);
+        }
+        .code-btn {
+            background: #22c55e;
+            color: #1e293b;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+            animation: blink 3s infinite;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .code-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.5);
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+            animation: pulse 2s infinite;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        @media (max-width: 600px) {
+            .code-container, .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 1.6em;
+            }
+            h2 {
+                font-size: 1.4em;
+            }
+            h3 {
+                font-size: 1.2em;
+            }
+            th, td {
+                font-size: 0.8em;
+                padding: 8px;
+            }
+            td {
+                max-width: 150px;
+            }
+            .contact-btn, .code-btn {
+                padding: 6px 12px;
+                font-size: 0.85em;
+            }
+            .chart-container {
+                padding: 5px;
+            }
+            .code-input {
+                font-size: 0.9em;
+                padding: 8px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <canvas class="particles" id="particles"></canvas>
+    <div class="code-container" id="codeContainer">
+        <h1>🔒 Gib den Code ein</h1>
+        <p>Yo, tipp den Code, um deine Analyse zu checken! 😎</p>
+        <input type="text" class="code-input" id="codeInput" placeholder="Code hier eingeben">
+        <button class="code-btn" onclick="checkCode()">Los geht’s! 🚀</button>
+        <p class="error" id="errorMsg">Falscher Code, nochmal!</p>
+    </div>
+
+    <div class="container" id="contentContainer">
+        <h1 class="reveal">🔥 Deine Analyse</h1>
+        <p class="reveal">Krass, du hast den Test gerockt! Hier deine Ergebnisse, mega übersichtlich mit Diagramm. Ich bin für dich da! 🌈</p>
+
+        <h2 class="reveal">Deine Scores</h2>
+        <div class="chart-container reveal">
+            <canvas id="resultsChart"></canvas>
+        </div>
+        <div class="table-wrapper reveal">
+            <table>
+                <tr>
+                    <th>Bereich</th>
+                    <th>Punkte</th>
+                    <th>Was geht?</th>
+                </tr>
+                <tr>
+                    <td><strong>Stimmungsschwankungen (Bipolare Störung)</strong></td>
+                    <td>27/28</td>
+                    <td>
+                        Krass: Ups & Downs = bipolar? <br>
+                        <span class="overlay-alert" onclick="this.classList.add('revealed')">
+                            <span class="overlay">*****</span>
+                            <span>🚨 Alarm: Du denkst oft an dunkle Sachen (z. B. nicht leben wollen). Das ist mega ernst!</span>
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Aufmerksamkeit & Impulsivität (ADHS)</strong></td>
+                    <td>22/28</td>
+                    <td>
+                        Chaos im Kopf? Zappelig? Vielleicht ADHS, aber bipolar stärker.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Psychische Gesundheit</strong></td>
+                    <td>25/28</td>
+                    <td>
+                        Stress, schlechter Schlaf, Rückzug (nur WhatsApp)? Passt zu Depression/bipolar.
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Offene Antworten</strong></td>
+                    <td>-</td>
+                    <td>
+                        „Weiß nicht“, „Stress ja“. Doc schon da? Nope, oder?
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <h2 class="reveal">Was läuft?</h2>
+        <ul class="reveal">
+            <li><strong>Bipolar?</strong> Stimmungsschwankungen (z. B. WhatsApp-Rückzug) = typisch. 😎</li>
+            <li><strong>ADHS?</strong> Fokus weg, impulsiv, mischt sich mit bipolar.</li>
+            <li><strong>Dringend:</strong> Dunkle Gedanken? Jetzt handeln! 🚑</li>
+        </ul>
+
+        <h2 class="reveal">Warum nur texten?</h2>
+        <div class="alert reveal">
+            Nur WhatsApp? Das isoliert dich. So kommst du raus:
+            <ul>
+                <li>Text weniger, Videoanruf mehr! 📹</li>
+                <li>Sprachnachrichten statt Text. 🎙️</li>
+                <li>Offline treffen: Spazieren, Kaffee? ☕</li>
+                <li>Call mich, ich bin da! 😜</li>
+            </ul>
+        </div>
+
+        <h2 class="reveal">Next Steps</h2>
+        <div class="tip reveal">
+            Du bist nicht allein! Wir kriegen das hin! 💪
+        </div>
+        <ol class="reveal">
+            <li><strong>Dunkle Gedanken?</strong> Rede mit mir oder <span class="contact-btn" onclick="callNumber('08001110111')">Telefonseelsorge</span> (0800 111 0 111). Gefahr? <span class="contact-btn" onclick="callNumber('112')">112</span>!</li>
+            <li><strong>Doc holen:</strong> Psychiater klärt’s. Ich such mit: <span class="contact-btn" onclick="callNumber('116117')">116 117</span>, <a href="https://www.kbv.de">kbv.de</a>. 😎</li>
+            <li><strong>Kleine Schritte:</strong> Stimmung tracken (Daylio). Handy abends weg.</li>
+            <li><strong>Chillen:</strong> Videoanruf oder Kaffee? Besser als texten! 📹☕</li>
+        </ol>
+
+        <h2 class="reveal">Was andere sagen</h2>
+        <div class="tip reveal">
+            X-User mit BS/ADHS teilen Tipps (2025):
+            <ul>
+                <li>„Stimmungstagebuch hilft, Muster zu sehen.“</li>
+                <li>„Sport holt mich aus dem Loch.“</li>
+                <li>„Medis + Therapie = Gamechanger!“</li>
+                <li>„Regelmäßig schlafen stabilisiert.“</li>
+                <li>„Freunde anrufen statt texten!“</li>
+            </ul>
+        </div>
+
+        <h3 class="reveal">Deine Lifelines</h3>
+        <div class="contact-box reveal">
+            <ul>
+                <li><strong>Telefonseelsorge:</strong> <span class="contact-btn" onclick="callNumber('08001110111')">0800 111 0 111</span></li>
+                <li><strong>Notfall:</strong> <span class="contact-btn" onclick="callNumber('112')">112</span></li>
+                <li><strong>Arzt finden:</strong> <a href="https://www.kbv.de" class="contact-btn">kbv.de</a>, <span class="contact-btn" onclick="callNumber('116117')">116 117</span></li>
+                <li><strong>Infos:</strong> <a href="https://www.dgbs.de" class="contact-btn">Bipolare Störung</a>, <a href="https://www.adhs-deutschland.de" class="contact-btn">ADHS</a></li>
+            </ul>
+        </div>
+
+        <p class="final-note reveal">Du bist ein Star, auch wenn’s heavy ist! Quatschen? Ich bin da! 🌟</p>
+    </div>
+
+    <script>
+        function callNumber(number) {
+            window.location.href = `tel:${number}`;
+            alert('Anruf wird gestartet...');
+        }
+
+        function checkCode() {
+            const code = document.getElementById('codeInput').value;
+            const correctCode = '133707062025';
+            const errorMsg = document.getElementById('errorMsg');
+            const codeContainer = document.getElementById('codeContainer');
+            const contentContainer = document.getElementById('contentContainer');
+
+            if (code === correctCode) {
+                codeContainer.style.display = 'none';
+                contentContainer.style.display = 'block';
+                initChart();
+                initScrollReveal();
+                initParticles();
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function initChart() {
+            const ctx = document.getElementById('resultsChart').getContext('2d');
+            const gradient1 = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient1.addColorStop(0, '#ef4444');
+            gradient1.addColorStop(1, '#f1fa8c');
+            const gradient2 = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient2.addColorStop(0, '#22c55e');
+            gradient2.addColorStop(1, '#00b7eb');
+            const gradient3 = ctx.createLinearGradient(0, 0, 0, 200);
+            gradient3.addColorStop(0, '#00b7eb');
+            gradient3.addColorStop(1, '#ff79c6');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Bipolare Störung', 'ADHS', 'Psychische Gesundheit'],
+                    datasets: [{
+                        label: 'Punktzahl (von 28)',
+                        data: [27, 22, 25],
+                        backgroundColor: [gradient1, gradient2, gradient3],
+                        borderColor: ['#dc2626', '#16a34a', '#0284c7'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    animation: {
+                        duration: 1500,
+                        easing: 'easeOutBounce',
+                        onProgress: function(animation) {
+                            const chart = animation.chart;
+                            const dataset = chart.data.datasets[0];
+                            const meta = chart.getDatasetMeta(0);
+                            meta.data.forEach((bar, index) => {
+                                const t = animation.currentStep / animation.numSteps;
+                                const colors = [
+                                    ['#ef4444', '#f1fa8c'],
+                                    ['#22c55e', '#00b7eb'],
+                                    ['#00b7eb', '#ff79c6']
+                                ];
+                                const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+                                gradient.addColorStop(0, colors[index][0]);
+                                gradient.addColorStop(1, colors[index][Math.floor(t * 2) % 2]);
+                                dataset.backgroundColor[index] = gradient;
+                            });
+                            chart.update();
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 28,
+                            grid: { color: '#475569' },
+                            ticks: { color: '#e0e0e0' }
+                        },
+                        x: {
+                            ticks: { color: '#e0e0e0' }
+                        }
+                    },
+                    plugins: {
+                        legend: { labels: { color: '#e0e0e0' } },
+                        title: {
+                            display: true,
+                            text: 'Deine Scores',
+                            color: '#0284c7',
+                            font: { size: 16 }
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        }
+
+        function initScrollReveal() {
+            const reveals = document.querySelectorAll('.reveal');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+            reveals.forEach(reveal => observer.observe(reveal));
+        }
+
+        function initParticles() {
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particles = [];
+            for (let i = 0; i < 50; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    radius: Math.random() * 2 + 1,
+                    vx: Math.random() * 2 - 1,
+                    vy: Math.random() * 2 - 1,
+                    color: Math.random() > 0.5 ? '#00b7eb' : '#f1fa8c'
+                });
+            }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    if (p.x < 0 || p.x > canvas.width) p.vx = -p.vx;
+                    if (p.y < 0 || p.y > canvas.height) p.vy = -p.vy;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+        }
+    </script>
+</body>
+  </html>
